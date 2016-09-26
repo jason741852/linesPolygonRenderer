@@ -13,19 +13,19 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
     client.cpp \
     renderarea361.cpp \
-    window361.cpp
+    window361.cpp \
+    drawable.cpp
 
-HEADERS  += mainwindow.h \
+HEADERS  += \
     client.h \
     drawable.h \
     pageturner.h \
     renderarea361.h \
     window361.h
 
-FORMS    += mainwindow.ui
+FORMS    +=
 
 SUBDIRS += \
     qtqt.pro
