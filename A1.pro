@@ -1,6 +1,6 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2016-09-25T23:25:04
+# Project created by QtCreator 2016-09-21T01:38:20
 #
 #-------------------------------------------------
 
@@ -8,24 +8,20 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = A1
+TARGET = qtqt
 TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
     client.cpp \
+    window361.cpp \
     renderarea361.cpp \
-    window361.cpp
+    drawable.cpp
 
-HEADERS  += mainwindow.h \
-    client.h \
+HEADERS  += \
     drawable.h \
     pageturner.h \
-    renderarea361.h \
-    window361.h
+    client.h \
+    window361.h \
+    renderarea361.h
 
-FORMS    += mainwindow.ui
-
-SUBDIRS += \
-    qtqt.pro

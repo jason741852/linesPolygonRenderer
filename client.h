@@ -12,6 +12,8 @@ public:
 private:
     Drawable *drawable;
     void draw_rect(int x1, int y1, int x2, int y2, unsigned int color);
+    void DDA(int x1, int y1, int x2, int y2, unsigned int color);
+    void Client::starburstPoints(int panel_location);
 };
 
 #endif // CLIENT_H
