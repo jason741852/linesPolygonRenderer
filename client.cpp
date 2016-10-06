@@ -117,199 +117,168 @@ void Client::DDA(float x1, float y1, float x2, float y2, unsigned int color){
     }
 }
 
-//void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color){
-//    int dx = x2-x1;
-//    if(x1>x2) {
-//        dx = x1-x2;
-//    }
+void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color){
+    int dx = x2-x1;
+    if(x1>x2) {
+        dx = x1-x2;
+    }
 
-//    int dy = y2-y1;
-//    if(y1>y2) {
-//        dy = y1-y2;
-//    }
+    int dy = y2-y1;
+    if(y1>y2) {
+        dy = y1-y2;
+    }
 
-//    int two_dx = 2*dx;
-//    int two_dy = 2*(y2-y1);
+    int two_dx = 2*dx;
+    int two_dy = 2*dy;
 
-//    //QTextStream(stdout)<<"(x1,y1)=("<<x1<<","<<y1<<"),(x2,y2)=("<<x2<<","<<y2<<"), err= "<<err<<endl;
-//    //int y = y1;
-//    drawable->setPixel(x1,y1,color);
+    QTextStream(stdout)<<"(x1,y1)=("<<x1<<","<<y1<<"),(x2,y2)=("<<x2<<","<<y2<<")"<<endl;
+    //int y = y1;
+    drawable->setPixel(x1,y1,color);
 
-//    if(abs(dx)>abs(dy)){
-//        int err = two_dy-dx;
-//        int t2 = two_dy-two_dx;
-//        if(y2>y1){
-//            QTextStream(stdout)<<"1st cond. t2= "<<t2<<endl;
-//            int y = y1;
-//            //if(x2>x1){
-//                for(int x=x1+1; x<=x2; x++){
-//                    if (err>=0){
-//                        err = err + t2;
-//                        y++;
-//                        //QTextStream(stdout)<<"y increasing"<<endl;
-//                    }
-//                    else{
-//                        err = err+two_dy;
-//                    }
-//                    //QTextStream(stdout)<<"1st Drawn"<<endl;
-//                    drawable->setPixel(x,y,color);
-//                }
-//            //}
-////            else{
-////                for(int x=x1-1; x>=x2; x--){
-////                    if (err>=0){
-////                        err = err + t2;
-////                        y++;
-////                        //QTextStream(stdout)<<"y increasing"<<endl;
-////                    }
-////                    else{
-////                        err = err+two_dy;
-////                    }
-////                    //QTextStream(stdout)<<"1st Drawn"<<endl;
-////                    drawable->setPixel(x,y,color);
-////                }
-////            }
-//        }
-//        else{
-//            QTextStream(stdout)<<"2nd cond. t2= "<<t2<<endl;
-//            int y = y1;
-//            for(int x=x1+1; x<=x2; x++){
-//                if (err>=0){
-//                    err = err + t2;
-//                    y--;
-//                    //QTextStream(stdout)<<"y increasing"<<endl;
-//                }
-//                else{
-//                    err = err+two_dy;
-//                }
-//                //QTextStream(stdout)<<"1st Drawn"<<endl;
-//                drawable->setPixel(x,y,color);
-//            }
-//        }
-//    }
-//    else{
-//         int err = two_dx-dy;
-//        int t2 = two_dx-two_dy;
-//        if(x2>x1){
-//            QTextStream(stdout)<<"3rd cond. t2= "<<t2<<endl;
-//            int x = x1;
-//            for(int y=y1+1; y<=y2; y++){
-//                if (err>=0){
-//                    err = err + t2;
-//                    x++;
-//                    //QTextStream(stdout)<<"x increasing"<<endl;
-//                }
-//                else{
-//                    err = err+two_dx;
-//                }
+    if(dx>dy){
+        int err = two_dy-dx;
+        int t2 = two_dy-two_dx;
+        if(y2>y1){
+            QTextStream(stdout)<<"1st cond. "<<endl;
+            int y = y1;
+            if(x2>x1){
+                for(int x=x1+1; x<=x2; x++){
+                    if (err>=0){
+                        err = err + t2;
+                        y++;
+                        //QTextStream(stdout)<<"y increasing"<<endl;
+                    }
+                    else{
+                        err = err+two_dy;
+                    }
+                    //QTextStream(stdout)<<"1st Drawn"<<endl;
+                    drawable->setPixel(x,y,color);
+                }
+            }
+            else{
+                for(int x=x1-1; x>=x2; x--){
+                    if (err>=0){
+                        err = err + t2;
+                        y++;
+                        //QTextStream(stdout)<<"y increasing"<<endl;
+                    }
+                    else{
+                        err = err+two_dy;
+                    }
+                    //QTextStream(stdout)<<"1st Drawn"<<endl;
+                    drawable->setPixel(x,y,color);
+                }
+            }
+        }
+        else{
+            if(x2>x1){
+                QTextStream(stdout)<<"2nd cond. "<<endl;
+                int y = y1;
+                for(int x=x1+1; x<=x2; x++){
+                    if (err>=0){
+                        err = err + t2;
+                        y--;
+                        //QTextStream(stdout)<<"y decreasing"<<endl;
+                    }
+                    else{
+                        err = err+two_dy;
+                    }
+                    //QTextStream(stdout)<<"(x,y)= ("<<x<<","<<y<<")"<<endl;
+                    //QTextStream(stdout)<<"1st Drawn"<<endl;
+                    drawable->setPixel(x,y,color);
+                }
+            }
+            else{
+                int y = y1;
+                for(int x=x1-1; x>=x2; x--){
+                    if (err>=0){
+                        err = err + t2;
+                        y--;
+                        //QTextStream(stdout)<<"y decreasing"<<endl;
+                    }
+                    else{
+                        err = err+two_dy;
+                    }
+                    //QTextStream(stdout)<<"(x,y)= ("<<x<<","<<y<<")"<<endl;
+                    //QTextStream(stdout)<<"1st Drawn"<<endl;
+                    drawable->setPixel(x,y,color);
+                }
+            }
+        }
+    }
+    else{
+        int err = two_dx-dy;
+        int t2 = two_dx-two_dy;
+        if(x2>x1){
+                if(y2>y1){
+                    QTextStream(stdout)<<"3rd cond. "<<endl;
+                    int x = x1;
+                    for(int y=y1+1; y<=y2; y++){
+                        if (err>=0){
+                            err = err + t2;
+                            x++;
+                            //QTextStream(stdout)<<"x increasing"<<endl;
+                        }
+                        else{
+                            err = err+two_dx;
+                        }
 
-//                drawable->setPixel(x,y,color);
-//            }
-//        }
-//        else{
-//            QTextStream(stdout)<<"4th cond. t2= "<<t2<<endl;
-//            int x = x1;
-//            for(int y=y1+1; y<=y2; y++){
-//                if (err>=0){
-//                    err = err + t2;
-//                    x--;
-//                    //QTextStream(stdout)<<"x increasing"<<endl;
-//                }
-//                else{
-//                    err = err+two_dx;
-//                }
+                        drawable->setPixel(x,y,color);
+                    }
+                }
+                else{
+                    QTextStream(stdout)<<"3rd cond. "<<endl;
+                    int x = x1;
+                    for(int y=y1+1; y>=y2; y--){
+                        if (err>=0){
+                            err = err + t2;
+                            x++;
+                            //QTextStream(stdout)<<"x increasing"<<endl;
+                        }
+                        else{
+                            err = err+two_dx;
+                        }
 
-//                drawable->setPixel(x,y,color);
-//            }
-//        }
-//    }
-//}
+                        drawable->setPixel(x,y,color);
+                    }
+                }
+        }
+        else{
+            if(y2>y1){
+                QTextStream(stdout)<<"4th cond. "<<endl;
+                int x = x1;
+                for(int y=y1+1; y<=y2; y++){
+                    if (err>=0){
+                        err = err + t2;
+                        x--;
+                        //QTextStream(stdout)<<"x decreasing"<<endl;
+                    }
+                    else{
+                        err = err+two_dx;
+                    }
 
-void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color) {
+                    drawable->setPixel(x,y,color);
+                }
+            }
+            else{
+                QTextStream(stdout)<<"4th cond. "<<endl;
+                int x = x1;
+                for(int y=y1+1; y>=y2; y--){
+                    if (err>=0){
+                        err = err + t2;
+                        x--;
+                        //QTextStream(stdout)<<"x decreasing"<<endl;
+                    }
+                    else{
+                        err = err+two_dx;
+                    }
 
-     int dx = x2-x1;
-     if(x1>x2) {
-         dx = x1-x2;
-     }
-
-     int dy = y2-y1;
-     if(y1>y2) {
-         dy = y1-y2;
-     }
-     int twodx = 2*dx;
-     int twody = 2*dy;
-
-     int t = twody - twodx;
-     int err = twody - dx;
-
-     int u = twodx - twody;
-     int err2 = twodx - dy;
-
-     int x = x1;
-     int y = y1;
-     drawable->setPixel(x1, y1, color);
-
-     if(dx > dy) {
-         if(y1 > y2) {
-             for(x=x1+1; x<x2; x++) {
-
-                 if(err>=0) {
-                     err = err + t;
-                     y--;
-                 }
-                 else {
-                     err = err + twody;
-                 }
-                 QTextStream(stdout)<<"dx "<<dx<<" dy "<<dy<<"   ";
-                 QTextStream(stdout)<<"x1 "<<x1<<" y1 "<<y1<<"   ";
-                 QTextStream(stdout)<<"x2 "<<x2<<" y2 "<<y2<<endl;
-                 drawable->setPixel(x, y, color);
-             }
-         }
-         else {
-             for(x=x1+1; x<x2; x++) {
-
-                 if(err>=0) {
-                     err = err + t;
-                     y++;
-                 }
-                 else {
-                     err = err + twody;
-                 }
-                 QTextStream(stdout)<<"dx "<<dx<<" dy "<<dy<<"   ";
-                 QTextStream(stdout)<<"x1 "<<x1<<" y1 "<<y1<<"   ";
-                 QTextStream(stdout)<<"x2 "<<x2<<" y2 "<<y2<<endl;
-                 drawable->setPixel(x, y, color);
-             }
-         }
-     }
-     else {
-         if(x1>x2){
-             for(y=y1+1; y<y2; y++) {
-                 if(err2>=0) {
-                     err2 = err2 + u;
-                     x--;
-                 }
-                 else {
-                     err2 = err2 + twodx;
-                 }
-                 drawable->setPixel(x, y, color);
-             }
-         }
-         else {
-             for(y=y1+1; y<y2; y++) {
-                 if(err2>=0) {
-                     err2 = err2 + u;
-                     x++;
-                 }
-                 else {
-                     err2 = err2 + twodx;
-                 }
-                 drawable->setPixel(x, y, color);
-             }
-         }
-     }
- }
+                    drawable->setPixel(x,y,color);
+                }
+            }
+        }
+    }
+}
 
 void Client::starburstPoints(int panel_location){
     if(panel_location == 1)
@@ -319,30 +288,24 @@ void Client::starburstPoints(int panel_location){
         //float theta = 0;
         int i = 0;
         //theta<2*PI
-        for (float theta=0; i<90; theta+=space){
+        for (float theta=0; theta<2*PI; theta+=space){
             x1 = 200;
             y1 = 200;
             x2 = 200 + 75*cos(theta);
             y2 = 200 + 75*sin(theta);
             QTextStream(stdout)<<"(x2,y2)= ("<<x2<<","<<y2<<")"<<endl;
-            Bresenham(x1,y1,x2,y2,0xffffffff);
+            DDA(x1,y1,x2,y2,0xffffffff);
             i++;
-
-//            //QTextStream(stdout)<<theta<<endl;
-//            x1 = 200 + 75*cos(theta);
-//            y1 = 200 + 75*sin(theta);
-//            x2 = 200 + 75*cos(theta-PI);
-//            y2 = 200 + 75*sin(theta-PI);
-//            //QTextStream(stdout)<<x1<<" " <<x2<<" "<<y1<<" "<<y2<<endl;
-//            i++;
-
-//            DDA(x1,y1,x2,y2,0xffffffff);
-//            //QTextStream(stdout)<<"stuck"<<endl;
-
-
-
         }
-          //QTextStream(stdout)<<"number of lines: "<<i<<endl;
+        for (float theta=0; theta<2*PI; theta+=space){
+            x1 = 550;
+            y1 = 200;
+            x2 = 550 + 75*cos(theta);
+            y2 = 200 + 75*sin(theta);
+            QTextStream(stdout)<<"(x2,y2)= ("<<x2<<","<<y2<<")"<<endl;
+            DDA(x1,y1,x2,y2,0xffffffff);
+            i++;
+        }
     }
     else if(panel_location == 2)
     {
