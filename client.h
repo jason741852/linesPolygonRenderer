@@ -12,6 +12,9 @@ public:
 private:
     Drawable *drawable;
     void draw_rect(int x1, int y1, int x2, int y2, unsigned int color);
+    void DDA(float x1, float y1, float x2, float y2, unsigned int color);
+    void starburstPoints(int panel_location);
+    void Bresenham(int x1, int y1, int x2, int y2, unsigned int color);
 };
 
 #endif // CLIENT_H
