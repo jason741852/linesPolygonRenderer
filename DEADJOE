@@ -1,0 +1,18 @@
+
+*** These modified files were found in JOE when it aborted on Wed Oct  5 21:08:46 2016
+*** JOE was aborted by UNIX signal 1
+
+*** File '(Unnamed)'
+/home/ksc19/Desktop/linesPolygonRenderer/.git/MERGE_MSG
+
+*** File '/home/ksc19/Desktop/linesPolygonRenderer/.git/MERGE_MSG'
+"fixing" 
+
+
+Merge branch 'master' of https://github.com/jason741852/linesPolygonRenderer
+
+# Please enter a commit message to explain why this merge is necessary,
+# especially if it merges an updated upstream into a topic branch.
+#
+# Lines starting with '#' will be ignored, and an empty message aborts
+# the commit.

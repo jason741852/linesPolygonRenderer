@@ -15,8 +15,7 @@ TEMPLATE = app
 SOURCES += main.cpp\
     client.cpp \
     window361.cpp \
-    renderarea361.cpp \
-    drawable.cpp
+    renderarea361.cpp
 
 HEADERS  += \
     drawable.h \
