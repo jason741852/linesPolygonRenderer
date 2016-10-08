@@ -18,22 +18,45 @@ void Client::nextPage() {
     pageNumber++;
     std::cout << "PageNumber " << pageNumber << std::endl;
 
-    switch(pageNumber % 4) {
+    switch(pageNumber % 5) {
     case 1:
         draw_rect(0, 0, 750, 750, 0xffff0080);
         draw_rect( 50,  50, 350, 350, 0xff00ff40);
         draw_rect(400,  50, 700, 350, 0xff40ff00);
         draw_rect( 50, 400, 350, 700, 0xffff8000);
         draw_rect(400, 400, 700, 700, 0xffffff00);
-        starburstPoints(4);
+        PageNumber(1);
         drawable->updateScreen();   // you must call this to make the display change.
         break;
     case 2:
+        draw_rect(0, 0, 750, 750, 0xffff0080);
+        draw_rect( 50,  50, 350, 350, 0xff00ff40);
+        draw_rect(400,  50, 700, 350, 0xff40ff00);
+        draw_rect( 50, 400, 350, 700, 0xffff8000);
+        draw_rect(400, 400, 700, 700, 0xffffff00);
+        PageNumber(2);
+        drawable->updateScreen();
         break;
     case 3:
+        draw_rect(0, 0, 750, 750, 0xffff0080);
+        draw_rect( 50,  50, 350, 350, 0xff00ff40);
+        draw_rect(400,  50, 700, 350, 0xff40ff00);
+        draw_rect( 50, 400, 350, 700, 0xffff8000);
+        draw_rect(400, 400, 700, 700, 0xffffff00);
+        PageNumber(3);
+        drawable->updateScreen();
         break;
     case 4:
+        draw_rect(0, 0, 750, 750, 0xffff0080);
+        draw_rect( 50,  50, 350, 350, 0xff00ff40);
+        draw_rect(400,  50, 700, 350, 0xff40ff00);
+        draw_rect( 50, 400, 350, 700, 0xffff8000);
+        draw_rect(400, 400, 700, 700, 0xffffff00);
+        PageNumber(4);
+        drawable->updateScreen();
         // fall through...
+        break;
+
     default:
         draw_rect(0, 0, 750, 750, 0xffffffff);
         draw_rect(400, 400, 700, 700, 0xff00ff40);
@@ -143,7 +166,7 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color){
     int two_dx = 2*dx;
     int two_dy = 2*dy;
 
-    QTextStream(stdout)<<"(x1,y1)=("<<x1<<","<<y1<<"),(x2,y2)=("<<x2<<","<<y2<<")"<<endl;
+    //QTextStream(stdout)<<"(x1,y1)=("<<x1<<","<<y1<<"),(x2,y2)=("<<x2<<","<<y2<<")"<<endl;
     //int y = y1;
     drawable->setPixel(x1,y1,color);
 
@@ -305,14 +328,18 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color){
 //}
 
 
-void Client::PolygonRenderer (int xx1, int yy1, int xx2, int yy2, int xx3, int yy3, unsigned int color){
+void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float xx3, float yy3, unsigned int color){
     // find the left-most point of the triangle label it x1 and y1, call i p1
     // if p1 is the lowest vertex of the triangle (max y),
     // assign the the other vertex of the longest line to p2
     // the last point is p3
+    // so p1 and p3 have either min(x's), max(y's) or min(x's), min(y's)
 
-    int x1,y1,x2,y2,x3,y3;
-    QTextStream(stdout)<<"(p1,p2)="<<endl;
+    bool VertLine_p1p2 = false;
+    bool VertLine_p1p3 = false;
+    bool VertLine_p2p3 = false;
+    float x1,y1,x2,y2,x3,y3;
+    //QTextStream(stdout)<<"(p1,p2)="<<endl;
 
     // Assigning parameters to p1,p2,p3
     if(Distance(xx1,yy1,xx2,yy2)>=Distance(xx1,yy1,xx3,yy3) && Distance(xx1,yy1,xx2,yy2)>=Distance(xx2,yy2,xx3,yy3)){
@@ -383,234 +410,226 @@ void Client::PolygonRenderer (int xx1, int yy1, int xx2, int yy2, int xx3, int y
 //        }
     }
 
-    // Draw the two line that are not traversed along
-    Bresenham(x1,y1,x3,y3,color);
-    Bresenham(x2,y2,x3,y3,color);
 
-    // Modified Bresenham code for drawing the line p1->p2
-    int dx = x2-x1;
-    int dy = y2-y1;
+//    // flip y so y is always on top (lower to higher)
+//    if(y1>y2){
+//        temp = x1;
+//        x1 = x2;
+//        x2 = temp;
+//        temp = y1;
+//        y1 = y2;
+//        y2 = temp;
+//    }
 
-    int two_dx = 2*dx;
-    int two_dy = 2*dy;
-
-    QTextStream(stdout)<<"(x1,y1)=("<<x1<<","<<y1<<"),(x2,y2)=("<<x2<<","<<y2<<")"<<endl;
-    //int y = y1;
+    QTextStream(stdout)<<"(x,y)= "<<x1<<","<<y1<<" ->  "<<x2<<","<<y2<<endl;
 
 
-    if(dx>dy){
-        int err = two_dy-dx;
-        int t2 = two_dy-two_dx;
-        if(y2>y1){
-            //QTextStream(stdout)<<"1st cond. "<<endl;
-            int y = y1;
-            if(x2>x1){
-                for(int x=x1+1; x<=x2; x++){
-                    if (err>=0){
-                        err = err + t2;
-                        y++;
-                        //QTextStream(stdout)<<"y increasing"<<endl;
+
+    // Declaration for the longest line p1p2
+    float long_dx = x2-x1;
+    float long_dy = y2-y1;
+    float long_m = (float)long_dy/(float)long_dx;
+    float long_b = y1-long_m*x1;
+    float long_y;
+    float long_x;
+
+    // Declaration for line p1p3
+    float a_dx = x3-x1;
+    float a_dy = y3-y1;
+    float a_m = (float)a_dy/(float)a_dx;
+    float a_b = y1-a_m*x1;
+    float a_x;
+    float a_y;
+
+    // Declaration for line p2p3
+    float b_dx = x3-x2;
+    float b_dy = y3-y2;
+    float b_m = (float)b_dy/(float)b_dx;
+    float b_b = y2-b_m*x2;
+    float b_x;
+    float b_y;
+
+    QTextStream(stdout)<<"b_m= "<<b_m<<endl;
+
+    //Check for vertical slope (m = infinity)
+    if((x1-x2)==0){
+        VertLine_p1p2 = true;
+        QTextStream(stdout)<<"p1p2 inf slope"<<endl;
+    }
+    if((x1-x3)==0){
+        VertLine_p1p3 = true;
+        QTextStream(stdout)<<"p1p3 inf slope"<<endl;
+    }
+    if((x2-x3)==0){
+        VertLine_p2p3 = true;
+        QTextStream(stdout)<<"p2p3 inf slope"<<endl;
+    }
+
+    // iterate along y
+    int i = 0;
+    //QTextStream(stdout)<<"(y,x)= "<<x1<<","<<y1<<" ->  "<<x2<<","<<y2<<endl;
+    QTextStream(stdout)<<"Slope= "<<long_m<<" || x1,y1="<<x1<<","<<y1<<"|| x2,y2="<<x2<<","<<y2<<"|| x3,y3="<<x3<<","<<y3<<endl;
+    if(!(abs(long_m)>0) && !(abs(long_m)<1)){
+        if(y1>y2){
+            QTextStream(stdout)<<"ONE"<<endl;
+            for(float y = y1; y>=y2; y--){
+                //QTextStream(stdout)<<"(x,y)=( "<<y<<","<<long_x<<endl;
+                if(y<y3){
+                    //QTextStream(stdout)<<"ONE"<<endl;
+                    //QTextStream(stdout)<<"long_x= "<<long_x<<endl;
+                    if(!VertLine_p1p2){
+                        long_x = (y-long_b)/long_m;
                     }
                     else{
-                        err = err+two_dy;
+                        long_x = x2;
                     }
-                    //QTextStream(stdout)<<"1st Drawn"<<endl;
-                    drawable->setPixel(x,y,color);
-                    QTextStream(stdout)<<"scanning pixels...."<<endl;
-
-                    int px1 = x;
-                    int py1 = y+1;
-                    int i=0;
-                    while(drawable->getPixel(px1,py1)!=color  &&  px1!=x2){
-                        QTextStream(stdout)<<i<<" color= "<<drawable->getPixel(px1,py1)<<" and py1= "<<py1<<endl<<endl;
-                        drawable->setPixel(px1,py1,color);
-                        py1++;
-                        //i++;
-                    }
-                }
-            }
-            else{
-                for(int x=x1-1; x>=x2; x--){
-                    if (err>=0){
-                        err = err + t2;
-                        y++;
-                        //QTextStream(stdout)<<"y increasing"<<endl;
+                    if(!VertLine_p1p3){
+                        a_x = (y-a_b)/a_m;
                     }
                     else{
-                        err = err+two_dy;
+                        a_x = x1;
                     }
-                    //QTextStream(stdout)<<"1st Drawn"<<endl;
-                    drawable->setPixel(x,y,color);
-
-                    int px1 = x;
-                    int py1 = y;
-                    while(drawable->getPixel(px1,py1)!=color){
-                        drawable->setPixel(px1,py1,color);
-                        py1++;
-                    }
+                    QTextStream(stdout)<<"(x,y)=( "<<long_x<<","<<y<<") to (a_x,a_y)=("<<a_x<<","<<y<<")"<<endl;
+                    Bresenham(long_x,y,a_x,y,color);
                 }
+                else{
+                    //QTextStream(stdout)<<"TWO"<<endl;
+                    if(!VertLine_p1p2){
+                        long_x = (y-long_b)/long_m;
+                    }
+                    else{
+                        long_x = x2;
+                    }
+                    if(!VertLine_p2p3){
+                        b_x = (y-b_b)/b_m;
+                    }
+                    else{
+                        b_x = x2;
+                    }
+                    QTextStream(stdout)<<"b_x= "<<b_x<<endl;
+                    QTextStream(stdout)<<"(x,y)=("<<long_x<<","<<y<<") to (b_x,b_y)=("<<b_x<<","<<y<<")"<<endl;
+                    Bresenham(long_x,y,b_x,y,color);
+                }
+                i++;
             }
         }
         else{
-            if(x2>x1){
-                //QTextStream(stdout)<<"2nd cond. "<<endl;
-                int y = y1;
-                for(int x=x1+1; x<=x2; x++){
-                    if (err>=0){
-                        err = err + t2;
-                        y--;
-                        //QTextStream(stdout)<<"y decreasing"<<endl;
+            QTextStream(stdout)<<"TWO"<<endl;
+            for(float y = y1; y<=y2; y++){
+                //QTextStream(stdout)<<"(x,y)=( "<<y<<","<<long_x<<endl;
+                if(y>y3){
+
+                    //QTextStream(stdout)<<"THREE"<<endl;
+                    //QTextStream(stdout)<<"long_x= "<<long_x<<endl;
+                    if(!VertLine_p1p2){
+                        long_x = (y-long_b)/long_m;
                     }
                     else{
-                        err = err+two_dy;
+                        long_x = x2;
                     }
-                    //QTextStream(stdout)<<"(x,y)= ("<<x<<","<<y<<")"<<endl;
-                    //QTextStream(stdout)<<"1st Drawn"<<endl;
-                    drawable->setPixel(x,y,color);
-                    QTextStream(stdout)<<"scanning pixels...."<<endl;
-
-                    int px1 = x;
-                    int py1 = y;
-                    while(drawable->getPixel(px1,py1)!=color){
-                        QTextStream(stdout)<<"py1= "<<py1<<endl;
-                        drawable->setPixel(px1,py1,color);
-                        py1--;
-                    }
-                }
-            }
-            else{
-                int y = y1;
-                for(int x=x1-1; x>=x2; x--){
-                    if (err>=0){
-                        err = err + t2;
-                        y--;
-                        //QTextStream(stdout)<<"y decreasing"<<endl;
+                    if(!VertLine_p1p3){
+                        a_x = (y-a_b)/a_m;
                     }
                     else{
-                        err = err+two_dy;
+                        a_x = x1;
                     }
-                    //QTextStream(stdout)<<"(x,y)= ("<<x<<","<<y<<")"<<endl;
-                    //QTextStream(stdout)<<"1st Drawn"<<endl;
-                    drawable->setPixel(x,y,color);
-
-                    int px1 = x;
-                    int py1 = y;
-                    while(drawable->getPixel(px1,py1)!=color){
-                        drawable->setPixel(px1,py1,color);
-                        py1--;
-                    }
+                    QTextStream(stdout)<<"(x,y)=( "<<y<<","<<long_x<<") to (a_x,a_y)=("<<a_x<<","<<y<<")"<<endl;
+                    Bresenham(long_x,y,a_x,y,color);
                 }
+                else{
+                    //QTextStream(stdout)<<"FOUR"<<endl;
+                    if(!VertLine_p1p2){
+                        long_x = (y-long_b)/long_m;
+                        QTextStream(stdout)<<"long_m= "<<long_m<<endl;
+                    }
+                    else{
+                        long_x = x2;
+                    }
+                    if(!VertLine_p2p3){
+                        b_x = (y-b_b)/b_m;
+                    }
+                    else{
+                        b_x = x2;
+                    }
+                    //QTextStream(stdout)<<"b_x= "<<b_x<<endl;
+                    QTextStream(stdout)<<"(x,y)=("<<long_x<<","<<y<<") to (b_x,b_y)=("<<b_x<<","<<y<<")"<<endl;
+                    Bresenham(long_x,y,b_x,y,color);
+                }
+                i++;
             }
         }
     }
     else{
-        int err = two_dx-dy;
-        int t2 = two_dx-two_dy;
-        if(x2>x1){
-                if(y2>y1){
-                    //QTextStream(stdout)<<"3rd cond. "<<endl;
-                    int x = x1;
-                    for(int y=y1+1; y<=y2; y++){
-                        if (err>=0){
-                            err = err + t2;
-                            x++;
-                            //QTextStream(stdout)<<"x increasing"<<endl;
-                        }
-                        else{
-                            err = err+two_dx;
-                        }
-
-                        drawable->setPixel(x,y,color);
-
-                        int px1 = x;
-                        int py1 = y;
-                        while(drawable->getPixel(px1,py1)!=color){
-                            drawable->setPixel(px1,py1,color);
-                            px1++;
-                        }
+        if(x1>x2){
+            QTextStream(stdout)<<"THREE"<<endl;
+            for(float x= x1; x>=x2; x--){
+                //QTextStream(stdout)<<"(y,x)"<<endl;
+                if(x>x3){
+                    //QTextStream(stdout)<<"FIVE"<<endl;
+                    //QTextStream(stdout)<<"long_y= "<<long_y<<endl;
+                    long_y = long_m*x + long_b;
+                    if(!VertLine_p1p3){
+                        a_y = a_m*x + a_b;
                     }
+                    else{
+                        a_y=y3;
+                    }
+                    Bresenham(x,long_y,x,a_y,color);
                 }
                 else{
-                    //QTextStream(stdout)<<"3rd cond. "<<endl;
-                    int x = x1;
-                    for(int y=y1+1; y>=y2; y--){
-                        if (err>=0){
-                            err = err + t2;
-                            x++;
-                            //QTextStream(stdout)<<"x increasing"<<endl;
-                        }
-                        else{
-                            err = err+two_dx;
-                        }
-
-                        drawable->setPixel(x,y,color);
-
-                        int px1 = x;
-                        int py1 = y;
-                        while(drawable->getPixel(px1,py1)!=color){
-                            drawable->setPixel(px1,py1,color);
-                            px1++;
-                        }
+                    //QTextStream(stdout)<<"SIX"<<endl;
+                    //QTextStream(stdout)<<"long_y= "<<long_y<<endl;
+                    long_y = long_m*x + long_b;
+                    if(!VertLine_p2p3){
+                        b_y = b_m*x + b_b;
                     }
+                    else{
+                        b_y = y2;
+                    }
+                    Bresenham(x,long_y,x,b_y,color);
                 }
+                i++;
+            }
         }
         else{
-            if(y2>y1){
-                //QTextStream(stdout)<<"4th cond. "<<endl;
-                int x = x1;
-                for(int y=y1+1; y<=y2; y++){
-                    if (err>=0){
-                        err = err + t2;
-                        x--;
-                        //QTextStream(stdout)<<"x decreasing"<<endl;
+            QTextStream(stdout)<<"FOUR"<<endl;
+            for(float x= x1; x<=x2; x++){
+                //QTextStream(stdout)<<"(y,x)"<<endl;
+                if(x<x3){
+                    //QTextStream(stdout)<<"SEVEN"<<endl;
+                    //QTextStream(stdout)<<"long_y= "<<long_y<<endl;
+                    long_y = long_m*x + long_b;
+                    if(!VertLine_p1p3){
+                        a_y = a_m*x + a_b;
                     }
                     else{
-                        err = err+two_dx;
+                        a_y=y3;
                     }
-
-                    drawable->setPixel(x,y,color);
-
-                    int px1 = x;
-                    int py1 = y;
-                    while(drawable->getPixel(px1,py1)!=color){
-                        drawable->setPixel(px1,py1,color);
-                        px1--;
-                    }
+                    Bresenham(x,long_y,x,a_y,color);
                 }
-            }
-            else{
-                //QTextStream(stdout)<<"4th cond. "<<endl;
-                int x = x1;
-                for(int y=y1+1; y>=y2; y--){
-                    if (err>=0){
-                        err = err + t2;
-                        x--;
-                        //QTextStream(stdout)<<"x decreasing"<<endl;
+                else{
+                    //QTextStream(stdout)<<"EIGHT"<<endl;
+                    //QTextStream(stdout)<<"long_y= "<<long_y<<endl;
+                    long_y = long_m*x + long_b;
+                    if(!VertLine_p2p3){
+                        b_y = b_m*x + b_b;
                     }
                     else{
-                        err = err+two_dx;
+                        b_y = y2;
                     }
-
-                    drawable->setPixel(x,y,color);
-
-                    int px1 = x;
-                    int py1 = y;
-                    while(drawable->getPixel(px1,py1)!=color){
-                        drawable->setPixel(px1,py1,color);
-                        px1--;
-                    }
+                    Bresenham(x,long_y,x,b_y,color);
                 }
+                i++;
             }
         }
     }
 }
 
-
-void Client::starburstPoints(int panel_location){
+void Client::PageNumber(int page_position){
     //////////////////////
     // PAGE1: Starburst //
     //////////////////////
-    if(panel_location == 1)
+    if(page_position == 1)
     {
         float x1,x2,y1,y2 = 0;
         float space = 2*PI/90;
@@ -663,7 +682,7 @@ void Client::starburstPoints(int panel_location){
     //////////////////////////
     // PAGE2: Parallelogram //
     //////////////////////////
-    else if(panel_location == 2)
+    else if(page_position == 2)
     {
         for(int p = 0; p<=50; p++){
             DDA(70,130+p,200,200+p,0xffffffff);
@@ -676,17 +695,17 @@ void Client::starburstPoints(int panel_location){
         int i = 0;
         for(int p = 0; p<=50; p++){
             if(i%2 == 0){
-                DDA(70,480+p,200,550+p,0xffffffff);
+                Bresenham(70,480+p,200,550+p,0xffffffff);
                 Bresenham(210+p,670,290+p,440,0xffffffff);
             }
             else{
                 DDA(70,480+p,200,550+p,0xffffffff);
-                Bresenham(210+p,670,290+p,440,0xffffffff);
+                DDA(210+p,670,290+p,440,0xffffffff);
             }
             i++;
         }
     }
-    else if (panel_location == 3){
+    else if (page_position == 3){
         srand ( time(0) );
         for(int i=0; i<120; i++){
             int x1 = rand() % 300 + 50;
@@ -733,36 +752,349 @@ void Client::starburstPoints(int panel_location){
             }
         }
     }
-    else if(panel_location == 4){
-        int x1 = 200;
-        int y1 = 200;
-        int x2 = 325;
-        int y2 = 250;
-        int x3, y3;
+    else if(page_position == 4){
+//        float x1=200;
+//        float y1=200;
+//        float x2=220;
+//        float y2=200;
+//        float x3=220;
+//        float y3=180;
+//        PolygonRenderer(x1,y1,x2,y2,x3,y3,0xffffffff);
+        float x1 = 200;
+        float y1 = 200;
+        float x2 = 325;
+        float y2 = 200;
+        float x3, y3;
         int i = 0;
-        x3 = 300;
-        y3 = 280;
+//        x3 = 250;
+//        y3 = 80;
+//        PolygonRenderer(x1,y1,x2,y2,x3,y3,0xffffffff);
 
-        PolygonRenderer(x1,y1,x2,y2,x3,y3,0xffffffff);
-        //int theta = 4; // 4 degrees
-//        for (float theta = 2*PI/90; i<90; theta= theta + (2*PI/90)){
-//            int r = rand() % 256;
-//            int g = rand() % 256;
-//            int b = rand() % 256;
+
+
+        qsrand(time(NULL));
+
+        for (float theta = 2*PI/90; i<90; theta= theta + (2*PI/90)){
+            //if(i>45){
+                int r = qrand() % 256;
+                int g = qrand() % 256;
+                int b = qrand() % 256;
+                QTextStream(stdout)<<"i= "<<i<<endl;
+
+                unsigned int colour = (0xff<<24)+((r&0xff)<<16)+((g&0xff)<<8)+(b&0xff);
+                x3 = 200 + 125*cos(theta);
+                y3 = 200 + 125*sin(theta);
+                PolygonRenderer(x1,y1,x2,y2,x3,y3,colour);
+                QTextStream(stdout)<<"(x2,y2)=("<<x2<<","<<y2<<"), (x3,y3)=("<<x3<<","<<y3<<")"<<endl;
+                x2=x3;
+                y2=y3;
+            //}
+//            int r = qrand() % 256;
+//            int g = qrand() % 256;
+//            int b = qrand() % 256;
 //            QTextStream(stdout)<<"theta= "<<theta<<endl;
 
 //            unsigned int colour = (0xff<<24)+((r&0xff)<<16)+((g&0xff)<<8)+(b&0xff);
-//            Bresenham(x1,y1,x2,y2,colour);
 //            x3 = 200 + 125*cos(theta);
-//            y3 = 200 + 125*cos(theta);
-//            Bresenham(x1,y1,x3,y3,colour);
-//            QTextStream(stdout)<<"(x2,y2)=("<<x2<<","<<y2<<"), (x3,y3)=("<<x3<<","<<y3<<")"<<endl;
+//            y3 = 200 + 125*sin(theta);
+//            PolygonRenderer(x1,y1,x2,y2,x3,y3,colour);
+//            //QTextStream(stdout)<<"(x2,y2)=("<<x2<<","<<y2<<"), (x3,y3)=("<<x3<<","<<y3<<")"<<endl;
 //            x2=x3;
 //            y2=y3;
+            i++;
+        }
+
+        int grid_data_x[9];
+        int grid_data_y[9];
+        for (int i=0; i<=8; i++){
+            //QTextStream(stdout)<<"(x2,y2)=("<<grid_data_x[i]<<",";
+            grid_data_x[i] = 420+28*i;
+            grid_data_y[i] = 70+28*i;
+            //QTextStream(stdout)<<grid_data_y[i]<<")  ";
+
+            //QTextStream(stdout)<<""<<endl;
+        }
+
+        for (int i=0; i<=8; i++){
+            for (int j=0; j<=8; j++){
+                int r1 = qrand() % 256;
+                int g1 = qrand() % 256;
+                int b1 = qrand() % 256;
+                int r2 = qrand() % 256;
+                int g2 = qrand() % 256;
+                int b2 = qrand() % 256;
+
+                float x1 = grid_data_x[j];
+                float y1 = grid_data_y[i];
+                float x2 = grid_data_x[j]+20;
+                float y2 = grid_data_y[i];
+                float x3 = grid_data_x[j];
+                float y3 = grid_data_y[i]+20;
+                float x4 = grid_data_x[j]+20;
+                float y4 = grid_data_y[i]+20;
+
+                QTextStream(stdout)<<"(x1,y1)=("<<x1<<","<<y1<<"),"<<"(x2,y2)=("<<x2+20<<","<<y2<<"), (x3,y3)=("<<x3<<","<<y3<<")"<<endl;
+
+                unsigned int colour1 = (0xff<<24)+((r1&0xff)<<16)+((g1&0xff)<<8)+(b1&0xff);
+                unsigned int colour2 = (0xff<<24)+((r2&0xff)<<16)+((g2&0xff)<<8)+(b2&0xff);
+                PolygonRenderer(x1,y1,x2,y2,x3,y3,colour1);
+                PolygonRenderer(x2,y2,x3,y3,x4,y4,colour2);
+            }
+        }
+
+
+        for (int i=0; i<=8; i++){
+            //QTextStream(stdout)<<"(x2,y2)=("<<grid_data_x[i]<<",";
+            grid_data_x[i] = 70+28*i;
+            grid_data_y[i] = 420+28*i;
+            //QTextStream(stdout)<<grid_data_y[i]<<")  ";
+
+            //QTextStream(stdout)<<""<<endl;
+        }
+
+        for(int i=0; i<=8; i++){
+            for (int j=0; j<=8; j++){
+                int r1 = qrand() % 256;
+                int g1 = qrand() % 256;
+                int b1 = qrand() % 256;
+                int r2 = qrand() % 256;
+                int g2 = qrand() % 256;
+                int b2 = qrand() % 256;
+                int shift_x = qrand() % (13+13)-13;
+                int shift_y = qrand() % (13+13)-13;
+
+                float x1 = grid_data_x[j]+shift_x;
+                float y1 = grid_data_y[i]+shift_y;
+                float x2 = grid_data_x[j]+20+shift_x;
+                float y2 = grid_data_y[i]+shift_y;
+                float x3 = grid_data_x[j]+shift_x;
+                float y3 = grid_data_y[i]+20+shift_y;
+                float x4 = grid_data_x[j]+20+shift_x;
+                float y4 = grid_data_y[i]+20+shift_y;
+
+
+                unsigned int colour1 = (0xff<<24)+((r1&0xff)<<16)+((g1&0xff)<<8)+(b1&0xff);
+                unsigned int colour2 = (0xff<<24)+((r2&0xff)<<16)+((g2&0xff)<<8)+(b2&0xff);
+
+
+                PolygonRenderer(x1,y1,x2,y2,x3,y3,colour1);
+                PolygonRenderer(x2,y2,x3,y3,x4,y4,colour2);
+
+            }
+        }
+
+        for(int i=0; i<120; i++){
+            int x1 = qrand() % 260 + 400;
+            int y1 = qrand() % 260 + 400;
+            //int x2 = qrand() % 25 + x1;
+            int x2 = x1 + 30;
+            //int y2 = qrand() % 10 + 20 + y1;
+            int y2 = y1;
+            //int x3 = qrand() % 20 + qrand() % (5+5) -5  + x1;
+            int x3 = x1 + 30;
+            //int y3 = qrand() % 20 + 20 + y1;
+            int y3 = y1 + 30;
+
+            int r1 = qrand() % 256;
+            int g1 = qrand() % 256;
+            int b1 = qrand() % 256;
+            int r2 = qrand() % 256;
+            int g2 = qrand() % 256;
+            int b2 = qrand() % 256;
+            unsigned int colour1 = (0xff<<24)+((r1&0xff)<<16)+((g1&0xff)<<8)+(b1&0xff);
+
+            PolygonRenderer(x1,y1,x2,y2,x3,y3,colour1);
+
+        }
+
+    }
+//    else if (page_position==5){
+//        float x1 = 200;
+//        float y1 = 200;
+//        float x2 = 325;
+//        float y2 = 200;
+//        float x3, y3;
+//        int i = 0;
+////        x3 = 250;
+////        y3 = 80;
+////        PolygonRenderer(x1,y1,x2,y2,x3,y3,0xffffffff);
+
+
+
+//        qsrand(time(NULL));
+
+//        for (float theta = 2*PI/90; i<90; theta= theta + (2*PI/90)){
+//            //if(i>45){
+//                int r = qrand() % 256;
+//                int g = qrand() % 256;
+//                int b = qrand() % 256;
+//                QTextStream(stdout)<<"i= "<<i<<endl;
+
+//                unsigned int colour = (0xff<<24)+((r&0xff)<<16)+((g&0xff)<<8)+(b&0xff);
+//                x3 = 200 + 125*cos(theta);
+//                y3 = 200 + 125*sin(theta);
+//                PolygonRenderer(x1,y1,x2,y2,x3,y3,colour);
+//                QTextStream(stdout)<<"(x2,y2)=("<<x2<<","<<y2<<"), (x3,y3)=("<<x3<<","<<y3<<")"<<endl;
+//                x2=x3;
+//                y2=y3;
+//            //}
+////            int r = qrand() % 256;
+////            int g = qrand() % 256;
+////            int b = qrand() % 256;
+////            QTextStream(stdout)<<"theta= "<<theta<<endl;
+
+////            unsigned int colour = (0xff<<24)+((r&0xff)<<16)+((g&0xff)<<8)+(b&0xff);
+////            x3 = 200 + 125*cos(theta);
+////            y3 = 200 + 125*sin(theta);
+////            PolygonRenderer(x1,y1,x2,y2,x3,y3,colour);
+////            //QTextStream(stdout)<<"(x2,y2)=("<<x2<<","<<y2<<"), (x3,y3)=("<<x3<<","<<y3<<")"<<endl;
+////            x2=x3;
+////            y2=y3;
 //            i++;
 //        }
 
-    }
+//        int grid_data_x[9];
+//        int grid_data_y[9];
+//        for (int i=0; i<=8; i++){
+//            //QTextStream(stdout)<<"(x2,y2)=("<<grid_data_x[i]<<",";
+//            grid_data_x[i] = 420+28*i;
+//            grid_data_y[i] = 70+28*i;
+//            //QTextStream(stdout)<<grid_data_y[i]<<")  ";
+
+//            //QTextStream(stdout)<<""<<endl;
+//        }
+
+//        for (int i=0; i<=8; i++){
+//            for (int j=0; j<=8; j++){
+//                int r1 = qrand() % 256;
+//                int g1 = qrand() % 256;
+//                int b1 = qrand() % 256;
+//                int r2 = qrand() % 256;
+//                int g2 = qrand() % 256;
+//                int b2 = qrand() % 256;
+
+//                float x1 = grid_data_x[j];
+//                float y1 = grid_data_y[i];
+//                float x2 = grid_data_x[j]+20;
+//                float y2 = grid_data_y[i];
+//                float x3 = grid_data_x[j];
+//                float y3 = grid_data_y[i]+20;
+//                float x4 = grid_data_x[j]+20;
+//                float y4 = grid_data_y[i]+20;
+
+//                QTextStream(stdout)<<"(x1,y1)=("<<x1<<","<<y1<<"),"<<"(x2,y2)=("<<x2+20<<","<<y2<<"), (x3,y3)=("<<x3<<","<<y3<<")"<<endl;
+
+//                unsigned int colour1 = (0xff<<24)+((r1&0xff)<<16)+((g1&0xff)<<8)+(b1&0xff);
+//                unsigned int colour2 = (0xff<<24)+((r2&0xff)<<16)+((g2&0xff)<<8)+(b2&0xff);
+//                PolygonRenderer(x1,y1,x2,y2,x3,y3,colour1);
+//                PolygonRenderer(x2,y2,x3,y3,x4,y4,colour2);
+//            }
+//        }
+
+
+//        for (int i=0; i<=8; i++){
+//            //QTextStream(stdout)<<"(x2,y2)=("<<grid_data_x[i]<<",";
+//            grid_data_x[i] = 70+28*i;
+//            grid_data_y[i] = 420+28*i;
+//            //QTextStream(stdout)<<grid_data_y[i]<<")  ";
+
+//            //QTextStream(stdout)<<""<<endl;
+//        }
+
+//        for(int i=0; i<=8; i++){
+//            for (int j=0; j<=8; j++){
+//                int r1 = qrand() % 256;
+//                int g1 = qrand() % 256;
+//                int b1 = qrand() % 256;
+//                int r2 = qrand() % 256;
+//                int g2 = qrand() % 256;
+//                int b2 = qrand() % 256;
+//                int shift_x = qrand() % (13+13)-13;
+//                int shift_y = qrand() % (13+13)-13;
+
+//                float x1 = grid_data_x[j]+shift_x;
+//                float y1 = grid_data_y[i]+shift_y;
+//                float x2 = grid_data_x[j]+20+shift_x;
+//                float y2 = grid_data_y[i]+shift_y;
+//                float x3 = grid_data_x[j]+shift_x;
+//                float y3 = grid_data_y[i]+20+shift_y;
+//                float x4 = grid_data_x[j]+20+shift_x;
+//                float y4 = grid_data_y[i]+20+shift_y;
+
+
+//                unsigned int colour1 = (0xff<<24)+((r1&0xff)<<16)+((g1&0xff)<<8)+(b1&0xff);
+//                unsigned int colour2 = (0xff<<24)+((r2&0xff)<<16)+((g2&0xff)<<8)+(b2&0xff);
+
+
+//                PolygonRenderer(x1,y1,x2,y2,x3,y3,colour1);
+//                PolygonRenderer(x2,y2,x3,y3,x4,y4,colour2);
+
+//            }
+//        }
+
+//        for(int i=0; i<120; i++){
+//            int x1 = qrand() % 260 + 400;
+//            int y1 = qrand() % 260 + 400;
+//            //int x2 = qrand() % 25 + x1;
+//            int x2 = x1 + 30;
+//            //int y2 = qrand() % 10 + 20 + y1;
+//            int y2 = y1;
+//            //int x3 = qrand() % 20 + qrand() % (5+5) -5  + x1;
+//            int x3 = x1 + 30;
+//            //int y3 = qrand() % 20 + 20 + y1;
+//            int y3 = y1 + 30;
+
+//            int r1 = qrand() % 256;
+//            int g1 = qrand() % 256;
+//            int b1 = qrand() % 256;
+//            int r2 = qrand() % 256;
+//            int g2 = qrand() % 256;
+//            int b2 = qrand() % 256;
+//            unsigned int colour1 = (0xff<<24)+((r1&0xff)<<16)+((g1&0xff)<<8)+(b1&0xff);
+
+//            PolygonRenderer(x1,y1,x2,y2,x3,y3,colour1);
+//        }
+
+//        for(int i=50; i<350; i++){
+//            for (int j=50; j<350; j++){
+//                if(drawable->getPixel(i,j)!=0xff00ff40){
+//                        QColor oldColor = drawable->getPixel(i,j);
+//                        QColor newColor = 0.3*(1,1,1)+ (1-0.3)*oldColor;
+//                        drawable->setPixel(i,j,newColor);
+//                }
+//            }
+//        }
+//        for(int i=400; i<700; i++){
+//            for (int j=50; j<350; j++){
+//                if(drawable->getPixel(i,j)!=0xff40ff00){
+//                        QColor oldColor = drawable->getPixel(i,j);
+//                        QColor newColor = 0.3*(1,1,1)+ (1-0.3)*oldColor;
+//                        drawable->setPixel(i,j,newColor);
+//                }
+//            }
+//        }
+
+//        for(int i=50; i<350; i++){
+//            for (int j=400; j<700; j++){
+//                if(drawable->getPixel(i,j)!=0xff40ff00){
+//                        QColor oldColor = drawable->getPixel(i,j);
+//                        QColor newColor = 0.3*(1,1,1)+ (1-0.3)*oldColor;
+//                        drawable->setPixel(i,j,newColor);
+//                }
+//            }
+//        }
+
+//        for(int i=400; i<700; i++){
+//            for (int j=400; j<700; j++){
+//                if(drawable->getPixel(i,j)!=0xff40ff00){
+//                        QColor oldColor = drawable->getPixel(i,j);
+//                        QColor newColor = 0.3*(1,1,1)+ (1-0.3)*oldColor;
+//                        drawable->setPixel(i,j,newColor);
+//                }
+//            }
+//        }
+
+//    }
 }
 
 int Client::Distance(int x1, int y1, int x2, int y2)
