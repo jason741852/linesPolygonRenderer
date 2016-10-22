@@ -25,7 +25,7 @@ void Client::nextPage() {
         draw_rect(400,  50, 700, 350, 0xff40ff00);
         draw_rect( 50, 400, 350, 700, 0xffff8000);
         draw_rect(400, 400, 700, 700, 0xffffff00);
-        PageNumber(1);
+        PageNumber(4);
         drawable->updateScreen();   // you must call this to make the display change.
         break;
     case 2:
@@ -34,7 +34,7 @@ void Client::nextPage() {
         draw_rect(400,  50, 700, 350, 0xff40ff00);
         draw_rect( 50, 400, 350, 700, 0xffff8000);
         draw_rect(400, 400, 700, 700, 0xffffff00);
-        PageNumber(2);
+        PageNumber(4);
         drawable->updateScreen();
         break;
     case 3:
@@ -43,7 +43,7 @@ void Client::nextPage() {
         draw_rect(400,  50, 700, 350, 0xff40ff00);
         draw_rect( 50, 400, 350, 700, 0xffff8000);
         draw_rect(400, 400, 700, 700, 0xffffff00);
-        PageNumber(3);
+        PageNumber(4);
         drawable->updateScreen();
         break;
     case 4:
@@ -86,7 +86,7 @@ void Client::DDA(float x1, float y1, float x2, float y2, unsigned int color){
     float y;
     //QTextStream(stdout)<<"(x1,y1)=("<<x1<<","<<y1<<"),(x2,y2)=("<<x2<<","<<y2<<"), m= "<<m<<endl;
     // check slope to see which octant
-    if(abs(m)>=0 && abs(m)<1)
+    if(abs(m)<1)
     {
         //QTextStream(stdout)<<"in I"<<endl;
         int i = 0;
@@ -315,33 +315,16 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color){
     }
 }
 
-//void Client::AntiAliased(int x1, int y1, int x2, int y2, unsigned int color){
-//    int dx = x2-x1;
-//    int dy = y2-y1;
-//    int du, dv, u, v;
-//    if(abs(dx)>abs(dy)){
-//        du = abs(dx);
-//        dv = abs(dy);
-
-//    }
-
-//}
-
 
 void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float xx3, float yy3, unsigned int color){
-    // find the left-most point of the triangle label it x1 and y1, call i p1
-    // if p1 is the lowest vertex of the triangle (max y),
-    // assign the the other vertex of the longest line to p2
-    // the last point is p3
-    // so p1 and p3 have either min(x's), max(y's) or min(x's), min(y's)
-
+    // initialize edge case for vertical lines
     bool VertLine_p1p2 = false;
     bool VertLine_p1p3 = false;
     bool VertLine_p2p3 = false;
     float x1,y1,x2,y2,x3,y3;
-    //QTextStream(stdout)<<"(p1,p2)="<<endl;
 
     // Assigning parameters to p1,p2,p3
+    // (x1,y1)->(x2,y2) is assigned to be the longest line
     if(Distance(xx1,yy1,xx2,yy2)>=Distance(xx1,yy1,xx3,yy3) && Distance(xx1,yy1,xx2,yy2)>=Distance(xx2,yy2,xx3,yy3)){
         x1 = xx1;
         y1 = yy1;
@@ -350,19 +333,6 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
         x3 = xx3;
         y3 = yy3;
         QTextStream(stdout)<<"longest line is (p1,p2)"<<endl;
-
-//        if(Distance(xx1,yy1,xx2,yy2)>=Distance(x1,y1,xx3,yy3)){
-//            x2 = xx2;
-//            y2 = yy2;
-//            x3 = xx3;
-//            y3 = yy3;
-//        }
-//        else{
-//            x2 = xx3;
-//            y2 = yy3;
-//            x3 = xx2;
-//            y3 = yy2;
-//        }
 
     }
     else if(Distance(xx2,yy2,xx3,yy3)>=Distance(xx1,yy1,xx2,yy2) && Distance(xx2,yy2,xx3,yy3)>=Distance(xx1,yy1,xx3,yy3)){
@@ -373,19 +343,6 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
         x3 = xx1;
         y3 = yy1;
         QTextStream(stdout)<<"longest line is (p2,p3)"<<endl;
-
-//        if(Distance(xx2,yy2,xx1,yy1)>=Distance(xx2,yy2,xx3,yy3)){
-//            x2 = xx1;
-//            y2 = yy1;
-//            x3 = xx3;
-//            y3 = yy3;
-//        }
-//        else{
-//            x2 = xx3;
-//            y2 = yy3;
-//            x3 = xx1;
-//            y3 = yy1;
-//        }
     }
     else{
         x1 = xx1;
@@ -395,31 +352,7 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
         x3 = xx2;
         y3 = yy2;
         QTextStream(stdout)<<"longest line is (p1,p3)"<<endl;
-
-//        if(Distance(xx3,yy3,xx1,yy1)>Distance(xx3,yy3,xx2,yy2)){
-//            x2 = xx1;
-//            y2 = yy1;
-//            x3 = xx2;
-//            y3 = yy2;
-//        }
-//        else{
-//            x2 = xx2;
-//            y2 = yy2;
-//            x3 = xx1;
-//            y3 = yy1;
-//        }
     }
-
-
-//    // flip y so y is always on top (lower to higher)
-//    if(y1>y2){
-//        temp = x1;
-//        x1 = x2;
-//        x2 = temp;
-//        temp = y1;
-//        y1 = y2;
-//        y2 = temp;
-//    }
 
     QTextStream(stdout)<<"(x,y)= "<<x1<<","<<y1<<" ->  "<<x2<<","<<y2<<endl;
 
@@ -465,164 +398,107 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
         QTextStream(stdout)<<"p2p3 inf slope"<<endl;
     }
 
-    // iterate along y
-    int i = 0;
     //QTextStream(stdout)<<"(y,x)= "<<x1<<","<<y1<<" ->  "<<x2<<","<<y2<<endl;
-    QTextStream(stdout)<<"Slope= "<<long_m<<" || x1,y1="<<x1<<","<<y1<<"|| x2,y2="<<x2<<","<<y2<<"|| x3,y3="<<x3<<","<<y3<<endl;
-    if(!(abs(long_m)>0) && !(abs(long_m)<1)){
-        if(y1>y2){
-            QTextStream(stdout)<<"ONE"<<endl;
-            for(float y = y1; y>=y2; y--){
-                //QTextStream(stdout)<<"(x,y)=( "<<y<<","<<long_x<<endl;
-                if(y<y3){
-                    //QTextStream(stdout)<<"ONE"<<endl;
-                    //QTextStream(stdout)<<"long_x= "<<long_x<<endl;
-                    if(!VertLine_p1p2){
-                        long_x = (y-long_b)/long_m;
-                    }
-                    else{
-                        long_x = x2;
-                    }
+    //QTextStream(stdout)<<"Slope= "<<long_m<<" || x1,y1="<<x1<<","<<y1<<"|| x2,y2="<<x2<<","<<y2<<"|| x3,y3="<<x3<<","<<y3<<endl;
+
+    if(abs(long_m)<1){
+        if(long_dx>0){// x1<x2
+            for(float x = x1;x<=x2;x++){
+                long_y=long_m*x+long_b;
+                if(x<=x3){
                     if(!VertLine_p1p3){
-                        a_x = (y-a_b)/a_m;
+                        a_y=a_m*x+a_b;
                     }
                     else{
-                        a_x = x1;
+                        a_y=y3;
                     }
-                    QTextStream(stdout)<<"(x,y)=( "<<long_x<<","<<y<<") to (a_x,a_y)=("<<a_x<<","<<y<<")"<<endl;
-                    Bresenham(long_x,y,a_x,y,color);
+                    Bresenham(x,long_y,x,a_y,color);
                 }
                 else{
-                    //QTextStream(stdout)<<"TWO"<<endl;
-                    if(!VertLine_p1p2){
-                        long_x = (y-long_b)/long_m;
-                    }
-                    else{
-                        long_x = x2;
-                    }
                     if(!VertLine_p2p3){
-                        b_x = (y-b_b)/b_m;
+                        b_y=b_m*x+b_b;
                     }
                     else{
-                        b_x = x2;
+                        b_y=y2;
                     }
-                    QTextStream(stdout)<<"b_x= "<<b_x<<endl;
-                    QTextStream(stdout)<<"(x,y)=("<<long_x<<","<<y<<") to (b_x,b_y)=("<<b_x<<","<<y<<")"<<endl;
-                    Bresenham(long_x,y,b_x,y,color);
+                    Bresenham(x,long_y,x,b_y,color);
                 }
-                i++;
+
             }
         }
         else{
-            QTextStream(stdout)<<"TWO"<<endl;
-            for(float y = y1; y<=y2; y++){
-                //QTextStream(stdout)<<"(x,y)=( "<<y<<","<<long_x<<endl;
-                if(y>y3){
-
-                    //QTextStream(stdout)<<"THREE"<<endl;
-                    //QTextStream(stdout)<<"long_x= "<<long_x<<endl;
-                    if(!VertLine_p1p2){
-                        long_x = (y-long_b)/long_m;
-                    }
-                    else{
-                        long_x = x2;
-                    }
+            for(float x=x1;x>=x2;x--){
+                long_y=long_m*x+long_b;
+                if(x>=x3){
                     if(!VertLine_p1p3){
-                        a_x = (y-a_b)/a_m;
+                        a_y=a_m*x+a_b;
                     }
                     else{
-                        a_x = x1;
+                        a_y=y3;
                     }
-                    QTextStream(stdout)<<"(x,y)=( "<<y<<","<<long_x<<") to (a_x,a_y)=("<<a_x<<","<<y<<")"<<endl;
-                    Bresenham(long_x,y,a_x,y,color);
+                    Bresenham(x,long_y,x,a_y,color);
                 }
                 else{
-                    //QTextStream(stdout)<<"FOUR"<<endl;
-                    if(!VertLine_p1p2){
-                        long_x = (y-long_b)/long_m;
-                        QTextStream(stdout)<<"long_m= "<<long_m<<endl;
-                    }
-                    else{
-                        long_x = x2;
-                    }
                     if(!VertLine_p2p3){
-                        b_x = (y-b_b)/b_m;
+                        b_y=b_m*x+b_b;
                     }
                     else{
-                        b_x = x2;
+                        b_y=y2;
                     }
-                    //QTextStream(stdout)<<"b_x= "<<b_x<<endl;
-                    QTextStream(stdout)<<"(x,y)=("<<long_x<<","<<y<<") to (b_x,b_y)=("<<b_x<<","<<y<<")"<<endl;
-                    Bresenham(long_x,y,b_x,y,color);
+                    Bresenham(x,long_y,x,b_y,color);
                 }
-                i++;
             }
         }
     }
     else{
-        if(x1>x2){
-            QTextStream(stdout)<<"THREE"<<endl;
-            for(float x= x1; x>=x2; x--){
-                //QTextStream(stdout)<<"(y,x)"<<endl;
-                if(x>x3){
-                    //QTextStream(stdout)<<"FIVE"<<endl;
-                    //QTextStream(stdout)<<"long_y= "<<long_y<<endl;
-                    long_y = long_m*x + long_b;
+        if(long_dy>0){
+            for(float y=y1;y<=y2;y++){
+                long_x=(y-long_b)/long_m;
+                if(y<=y3){
                     if(!VertLine_p1p3){
-                        a_y = a_m*x + a_b;
+                        a_x= (y-a_b)/a_m;
                     }
                     else{
-                        a_y=y3;
+                        a_x=x1;
                     }
-                    Bresenham(x,long_y,x,a_y,color);
+                    Bresenham(long_x,y,a_x,y,color);
                 }
                 else{
-                    //QTextStream(stdout)<<"SIX"<<endl;
-                    //QTextStream(stdout)<<"long_y= "<<long_y<<endl;
-                    long_y = long_m*x + long_b;
                     if(!VertLine_p2p3){
-                        b_y = b_m*x + b_b;
+                        b_x=(y-b_b)/b_m;
                     }
                     else{
-                        b_y = y2;
+                        b_x=x2;
                     }
-                    Bresenham(x,long_y,x,b_y,color);
+                    Bresenham(long_x,y,b_x,y,color);
                 }
-                i++;
             }
         }
         else{
-            QTextStream(stdout)<<"FOUR"<<endl;
-            for(float x= x1; x<=x2; x++){
-                //QTextStream(stdout)<<"(y,x)"<<endl;
-                if(x<x3){
-                    //QTextStream(stdout)<<"SEVEN"<<endl;
-                    //QTextStream(stdout)<<"long_y= "<<long_y<<endl;
-                    long_y = long_m*x + long_b;
+            for(float y=y1; y>=y2; y--){
+                long_x=(y-long_b)/long_m;
+                if(y>=y3){
                     if(!VertLine_p1p3){
-                        a_y = a_m*x + a_b;
+                        a_x= (y-a_b)/a_m;
                     }
                     else{
-                        a_y=y3;
+                        a_x=x1;
                     }
-                    Bresenham(x,long_y,x,a_y,color);
+                    Bresenham(long_x,y,a_x,y,color);
                 }
                 else{
-                    //QTextStream(stdout)<<"EIGHT"<<endl;
-                    //QTextStream(stdout)<<"long_y= "<<long_y<<endl;
-                    long_y = long_m*x + long_b;
                     if(!VertLine_p2p3){
-                        b_y = b_m*x + b_b;
+                        b_x=(y-b_b)/b_m;
                     }
                     else{
-                        b_y = y2;
+                        b_x=x2;
                     }
-                    Bresenham(x,long_y,x,b_y,color);
+                    Bresenham(long_x,y,b_x,y,color);
                 }
-                i++;
             }
         }
     }
+
 }
 
 void Client::PageNumber(int page_position){
@@ -760,10 +636,10 @@ void Client::PageNumber(int page_position){
 //        float x3=220;
 //        float y3=180;
 //        PolygonRenderer(x1,y1,x2,y2,x3,y3,0xffffffff);
-        float x1 = 200;
-        float y1 = 200;
-        float x2 = 325;
-        float y2 = 200;
+        float x1 = 400;
+        float y1 = 400;
+        float x2 = 600;
+        float y2 = 400;
         float x3, y3;
         int i = 0;
 //        x3 = 250;
@@ -782,8 +658,8 @@ void Client::PageNumber(int page_position){
                 QTextStream(stdout)<<"i= "<<i<<endl;
 
                 unsigned int colour = (0xff<<24)+((r&0xff)<<16)+((g&0xff)<<8)+(b&0xff);
-                x3 = 200 + 125*cos(theta);
-                y3 = 200 + 125*sin(theta);
+                x3 = 400 + 200*cos(theta);
+                y3 = 400 + 200*sin(theta);
                 PolygonRenderer(x1,y1,x2,y2,x3,y3,colour);
                 QTextStream(stdout)<<"(x2,y2)=("<<x2<<","<<y2<<"), (x3,y3)=("<<x3<<","<<y3<<")"<<endl;
                 x2=x3;
@@ -803,155 +679,6 @@ void Client::PageNumber(int page_position){
 //            y2=y3;
             i++;
         }
-
-        int grid_data_x[9];
-        int grid_data_y[9];
-        for (int i=0; i<=8; i++){
-            //QTextStream(stdout)<<"(x2,y2)=("<<grid_data_x[i]<<",";
-            grid_data_x[i] = 420+28*i;
-            grid_data_y[i] = 70+28*i;
-            //QTextStream(stdout)<<grid_data_y[i]<<")  ";
-
-            //QTextStream(stdout)<<""<<endl;
-        }
-
-        for (int i=0; i<=8; i++){
-            for (int j=0; j<=8; j++){
-                int r1 = qrand() % 256;
-                int g1 = qrand() % 256;
-                int b1 = qrand() % 256;
-                int r2 = qrand() % 256;
-                int g2 = qrand() % 256;
-                int b2 = qrand() % 256;
-
-                float x1 = grid_data_x[j];
-                float y1 = grid_data_y[i];
-                float x2 = grid_data_x[j]+20;
-                float y2 = grid_data_y[i];
-                float x3 = grid_data_x[j];
-                float y3 = grid_data_y[i]+20;
-                float x4 = grid_data_x[j]+20;
-                float y4 = grid_data_y[i]+20;
-
-                QTextStream(stdout)<<"(x1,y1)=("<<x1<<","<<y1<<"),"<<"(x2,y2)=("<<x2+20<<","<<y2<<"), (x3,y3)=("<<x3<<","<<y3<<")"<<endl;
-
-                unsigned int colour1 = (0xff<<24)+((r1&0xff)<<16)+((g1&0xff)<<8)+(b1&0xff);
-                unsigned int colour2 = (0xff<<24)+((r2&0xff)<<16)+((g2&0xff)<<8)+(b2&0xff);
-                PolygonRenderer(x1,y1,x2,y2,x3,y3,colour1);
-                PolygonRenderer(x2,y2,x3,y3,x4,y4,colour2);
-            }
-        }
-
-
-        for (int i=0; i<=8; i++){
-            //QTextStream(stdout)<<"(x2,y2)=("<<grid_data_x[i]<<",";
-            grid_data_x[i] = 70+28*i;
-            grid_data_y[i] = 420+28*i;
-            //QTextStream(stdout)<<grid_data_y[i]<<")  ";
-
-            //QTextStream(stdout)<<""<<endl;
-        }
-
-        for(int i=0; i<=8; i++){
-            for (int j=0; j<=8; j++){
-                int r1 = qrand() % 256;
-                int g1 = qrand() % 256;
-                int b1 = qrand() % 256;
-                int r2 = qrand() % 256;
-                int g2 = qrand() % 256;
-                int b2 = qrand() % 256;
-                int shift_x = qrand() % (13+13)-13;
-                int shift_y = qrand() % (13+13)-13;
-
-                float x1 = grid_data_x[j]+shift_x;
-                float y1 = grid_data_y[i]+shift_y;
-                float x2 = grid_data_x[j]+20+shift_x;
-                float y2 = grid_data_y[i]+shift_y;
-                float x3 = grid_data_x[j]+shift_x;
-                float y3 = grid_data_y[i]+20+shift_y;
-                float x4 = grid_data_x[j]+20+shift_x;
-                float y4 = grid_data_y[i]+20+shift_y;
-
-
-                unsigned int colour1 = (0xff<<24)+((r1&0xff)<<16)+((g1&0xff)<<8)+(b1&0xff);
-                unsigned int colour2 = (0xff<<24)+((r2&0xff)<<16)+((g2&0xff)<<8)+(b2&0xff);
-
-
-                PolygonRenderer(x1,y1,x2,y2,x3,y3,colour1);
-                PolygonRenderer(x2,y2,x3,y3,x4,y4,colour2);
-
-            }
-        }
-
-        for(int i=0; i<120; i++){
-            int x1 = qrand() % 260 + 400;
-            int y1 = qrand() % 260 + 400;
-            //int x2 = qrand() % 25 + x1;
-            int x2 = x1 + 30;
-            //int y2 = qrand() % 10 + 20 + y1;
-            int y2 = y1;
-            //int x3 = qrand() % 20 + qrand() % (5+5) -5  + x1;
-            int x3 = x1 + 30;
-            //int y3 = qrand() % 20 + 20 + y1;
-            int y3 = y1 + 30;
-
-            int r1 = qrand() % 256;
-            int g1 = qrand() % 256;
-            int b1 = qrand() % 256;
-            int r2 = qrand() % 256;
-            int g2 = qrand() % 256;
-            int b2 = qrand() % 256;
-            unsigned int colour1 = (0xff<<24)+((r1&0xff)<<16)+((g1&0xff)<<8)+(b1&0xff);
-
-            PolygonRenderer(x1,y1,x2,y2,x3,y3,colour1);
-
-        }
-
-    }
-//    else if (page_position==5){
-//        float x1 = 200;
-//        float y1 = 200;
-//        float x2 = 325;
-//        float y2 = 200;
-//        float x3, y3;
-//        int i = 0;
-////        x3 = 250;
-////        y3 = 80;
-////        PolygonRenderer(x1,y1,x2,y2,x3,y3,0xffffffff);
-
-
-
-//        qsrand(time(NULL));
-
-//        for (float theta = 2*PI/90; i<90; theta= theta + (2*PI/90)){
-//            //if(i>45){
-//                int r = qrand() % 256;
-//                int g = qrand() % 256;
-//                int b = qrand() % 256;
-//                QTextStream(stdout)<<"i= "<<i<<endl;
-
-//                unsigned int colour = (0xff<<24)+((r&0xff)<<16)+((g&0xff)<<8)+(b&0xff);
-//                x3 = 200 + 125*cos(theta);
-//                y3 = 200 + 125*sin(theta);
-//                PolygonRenderer(x1,y1,x2,y2,x3,y3,colour);
-//                QTextStream(stdout)<<"(x2,y2)=("<<x2<<","<<y2<<"), (x3,y3)=("<<x3<<","<<y3<<")"<<endl;
-//                x2=x3;
-//                y2=y3;
-//            //}
-////            int r = qrand() % 256;
-////            int g = qrand() % 256;
-////            int b = qrand() % 256;
-////            QTextStream(stdout)<<"theta= "<<theta<<endl;
-
-////            unsigned int colour = (0xff<<24)+((r&0xff)<<16)+((g&0xff)<<8)+(b&0xff);
-////            x3 = 200 + 125*cos(theta);
-////            y3 = 200 + 125*sin(theta);
-////            PolygonRenderer(x1,y1,x2,y2,x3,y3,colour);
-////            //QTextStream(stdout)<<"(x2,y2)=("<<x2<<","<<y2<<"), (x3,y3)=("<<x3<<","<<y3<<")"<<endl;
-////            x2=x3;
-////            y2=y3;
-//            i++;
-//        }
 
 //        int grid_data_x[9];
 //        int grid_data_y[9];
@@ -1053,48 +780,10 @@ void Client::PageNumber(int page_position){
 //            unsigned int colour1 = (0xff<<24)+((r1&0xff)<<16)+((g1&0xff)<<8)+(b1&0xff);
 
 //            PolygonRenderer(x1,y1,x2,y2,x3,y3,colour1);
+
 //        }
 
-//        for(int i=50; i<350; i++){
-//            for (int j=50; j<350; j++){
-//                if(drawable->getPixel(i,j)!=0xff00ff40){
-//                        QColor oldColor = drawable->getPixel(i,j);
-//                        QColor newColor = 0.3*(1,1,1)+ (1-0.3)*oldColor;
-//                        drawable->setPixel(i,j,newColor);
-//                }
-//            }
-//        }
-//        for(int i=400; i<700; i++){
-//            for (int j=50; j<350; j++){
-//                if(drawable->getPixel(i,j)!=0xff40ff00){
-//                        QColor oldColor = drawable->getPixel(i,j);
-//                        QColor newColor = 0.3*(1,1,1)+ (1-0.3)*oldColor;
-//                        drawable->setPixel(i,j,newColor);
-//                }
-//            }
-//        }
-
-//        for(int i=50; i<350; i++){
-//            for (int j=400; j<700; j++){
-//                if(drawable->getPixel(i,j)!=0xff40ff00){
-//                        QColor oldColor = drawable->getPixel(i,j);
-//                        QColor newColor = 0.3*(1,1,1)+ (1-0.3)*oldColor;
-//                        drawable->setPixel(i,j,newColor);
-//                }
-//            }
-//        }
-
-//        for(int i=400; i<700; i++){
-//            for (int j=400; j<700; j++){
-//                if(drawable->getPixel(i,j)!=0xff40ff00){
-//                        QColor oldColor = drawable->getPixel(i,j);
-//                        QColor newColor = 0.3*(1,1,1)+ (1-0.3)*oldColor;
-//                        drawable->setPixel(i,j,newColor);
-//                }
-//            }
-//        }
-
-//    }
+    }
 }
 
 int Client::Distance(int x1, int y1, int x2, int y2)
